@@ -96,17 +96,30 @@ The most important directories in wlserver/ are:
 - server/: component libraries etc
 - modules/: jars that wl uses, needed by the deployed applications, I think
 
-### I took "rigorous notes" only until end of Section 1 of the course.
-
 ## Weblogic domain
-A domain is a set of wl resources managed as one thing, a common control. This resources may be wl servers, coherence servers, jms, jdbc etc. The directory `~/Oracle/Middleware/Oracle_Home/oracle_common/common/bin$` contains lots of scripts. Some of them are called by scripts in the same directory. To create domains we use the script `config.sh`. `config_builder.sh` is the other important script, used to create domain templates.
+A domain is a set of wl resources managed as one thing, a common control. This resources may be wl servers, coherence servers, jms, jdbc etc. The directory `~/Oracle/Middleware/Oracle_Home/oracle_common/common/bin$` contains lots of scripts. Some of them are called by scripts in the same directory. To _create domains_ we use the script
+```text
+~/Oracle/Middleware/Oracle_Home/oracle_common/common/bin/config.sh
+```
+
+The script `config_builder.sh` is the other important script, used to create domain templates.
 
 The script `config.sh` is used to create wl domains. By default, it opens a graphical GUI. To run it in console mode pass `-mode=console`. Once we finish the wizard, a directory named after the name of the created domain will appear in `<domain_name>/servers/`. Notice that right after the creation of the domain only the Admin Server will appear here. The managed servers directories will be created once we start the admin server for the first time. 
 
-To update an existing domain is also known as to extend and existing domain. It is also done through script `config.sh`. This is used to add new technologies to an existing domain, or to add new libraries needed by applications running in the managed servers of the domain ? Notice that when we add a new feature to a domain, we cannot "remove" it after, using the same script `config.sh`.
+To update an existing domain is also known as to extend and existing domain. It is also done through script `config.sh`. This is used to add new technologies to an existing domain, or to add new Java EE libraries needed by applications running in the managed servers of the domain ? Notice that when we add a new feature to a domain, we cannot "remove" it after, using the same script `config.sh`. Examples of new features, or Java EE libraries, to be added when we update a domain may be "Weblogic Advanced Web Services for JAX-WS Extension" of "Weblogic JAX-WS SOAP/JMS Extension". Notice that all these libraries can be added when we create the domain initially. 
 
-A domain is a logical concept. Thus, its "location" is nothing but the location of its config files. It is better to create our domains separated from the rest of Weblogic components, ie. out of the Oracle home dir. Examples are "Weblogic Advanced Web Services for JAX-WS Extension" of "Weblogic JAX-WS SOAP/JMS Extension".
+A domain is a logical concept. Thus, its "location" is nothing but the location of its config files and libraries. It is recommended to create our domains separated from the rest of Weblogic components, ie. out of the Oracle home dir.
 
-The Admin server runs the admin (web) console, from where we manage all the components of the domain. The admin console is deployed in the Admin Server; it is the only application the administration server should have.  
+The Admin server runs the admin (web) console, from where we manage all the components of the domain. The admin console is deployed in the Admin Server; it is the only application the administration server should have. By default, it listens on port 7001.  
+
+When we create a domain, we can set for it either of the modes:
+- Development: Allows autodeploy by simply throwing our artifacts into such directory. Loads wl admin credentials from `boot.properties` file. Thought To ease development. 
+- Production: None of the features in Development.
+
+When we create a domain, me must also select JDK. It seems, therefore, that all the wl servers created for the domain afterwards, will use the same JDK. Also when we create a domain, we can create its Admins server, the node manager, some managed servers, clusters etc.
+
+The node manager is used to administer remote wl (managed) server.
 
 We shouldn't edit the domain config files manually (`<domain_name>/config/`). They must be edited only through the graphical or cli consoles. 
+
+### I took "rigorous notes" only until end of video 15 of the course.
