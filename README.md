@@ -66,7 +66,7 @@ Inside a wl domain we can create a **cluster**
 ![image info](./pictures/domain.png)
 
 ## Installation of Oracle Fusion Middleware
-In order to install Oracle Fusion Middleware you have to donwload the installer first from your Oracle account. I downloaded `fmw_12.2.1.4.0_infrastructure.jar`. It is then installed with `java -jar fmw_12.2.1.4.0_infrastructure.jar`. The active JDK most be one from Oracle. The installation directory I chose is (_Oracle home_):
+In order to install Oracle Fusion Middleware you have to download the installer first from your Oracle account. I downloaded `fmw_12.2.1.4.0_infrastructure.jar`. It is then installed with `java -jar fmw_12.2.1.4.0_infrastructure.jar`. The active JDK most be one from Oracle. The installation directory I chose is (_Oracle home_):
 ```text
 ~/Oracle/Middleware/Oracle_Home$ ll
 total 40
@@ -83,10 +83,30 @@ drwxr-x---  8 camilo camilo 4096 dic 30 13:31 wlserver/
 ```
 Inside this directory we might later install other products from the Oracle Middleware suite. Directories here are:
 - coherence/: files of this product from Oracle. Coherence is a grid memory (cluster) used by Oracle for session data storage etc.
-- em/: Console of the enterprise manager, including the Enterprise Manager Fusion Control ? From here we can administer all the middleware applications in Oracle Fusion Middleware, eg. Oracle Business Intelligence, Oracle Identity, Oracle Portal etc. The Weblogic server, though, has its own console.
-- inventory/: ever present. Contains components and patches installed in the Oracle home.
-- OPatch/: ever present. Contains binaries and libraries for patches. 
-- oracle_common/: programs and libraries common to wl server. Important for configurations.
-- oui/: files for Oracle Universal (Un)Installer.
-- wlserver/: This is the _Weblogic home_. Files and everything of Weblogic.Important.
+- em/: Console of the enterprise manager, including the Enterprise Manager Fusion Control ? From here we can administer all the middleware applications in Oracle Fusion Middleware, eg. Oracle Business Intelligence, Oracle Identity, Oracle Portal etc. Weblogic (the application, one of the products of Oracle Fusion Middleware), though, has its own console.
+- inventory/: ever present. Contains components and patches installed in the Oracle home. Historic inventory.
+- OPatch/: ever present. Contains binaries and libraries to do patches. 
+- **oracle_common/**: programs and libraries common to wl server. Important for configurations.
+- oui/: files for Oracle Universal (Un)Installer. I used `oui/deinstall.sh` to uninstall Oracle Fusion Middleware 12c and install it again with the correct JDK 1.8.0_191 from Oracle.
+- **wlserver/**: This is the _Weblogic home_. Files and everything of Weblogic.Important.
+ 
+### Weblogic Home `wlserver` (WL_HOME)
+The most important directories in wlserver/ are:
+- common/: scripts and binaries to perform some tasks with wl server
+- server/: component libraries etc
+- modules/: jars that wl uses, needed by the deployed applications, I think
 
+### I took "rigorous notes" only until end of Section 1 of the course.
+
+## Weblogic domain
+A domain is a set of wl resources managed as one thing, a common control. This resources may be wl servers, coherence servers, jms, jdbc etc. The directory `~/Oracle/Middleware/Oracle_Home/oracle_common/common/bin$` contains lots of scripts. Some of them are called by scripts in the same directory. To create domains we use the script `config.sh`. `config_builder.sh` is the other important script, used to create domain templates.
+
+The script `config.sh` is used to create wl domains. By default, it opens a graphical GUI. To run it in console mode pass `-mode=console`. Once we finish the wizard, a directory named after the name of the created domain will appear in `<domain_name>/servers/`. Notice that right after the creation of the domain only the Admin Server will appear here. The managed servers directories will be created once we start the admin server for the first time. 
+
+To update an existing domain is also known as to extend and existing domain. It is also done through script `config.sh`. This is used to add new technologies to an existing domain, or to add new libraries needed by applications running in the managed servers of the domain ? Notice that when we add a new feature to a domain, we cannot "remove" it after, using the same script `config.sh`.
+
+A domain is a logical concept. Thus, its "location" is nothing but the location of its config files. It is better to create our domains separated from the rest of Weblogic components, ie. out of the Oracle home dir. Examples are "Weblogic Advanced Web Services for JAX-WS Extension" of "Weblogic JAX-WS SOAP/JMS Extension".
+
+The Admin server runs the admin (web) console, from where we manage all the components of the domain. The admin console is deployed in the Admin Server; it is the only application the administration server should have.  
+
+We shouldn't edit the domain config files manually (`<domain_name>/config/`). They must be edited only through the graphical or cli consoles. 
