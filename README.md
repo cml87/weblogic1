@@ -182,7 +182,16 @@ When we start a managed server in a domain, it will try to connect to the admin 
 The node manager is used to perform operations on remote servers, such as to start them. With regard the to start-up operation, Weblogic considers all servers as remote servers. Therefore, to start them from the console, they need to have the node manager process running on them. The admin server will send a signal to the node manager and the later will start the wl server on that machine.
 
 ## Scripts 
+The more important scripts are:
+startManagedWebLogic.sh -> startWebLogic.sh -> setDomainEnv.sh -> (setStartupEnv.sh and setUserOverrides.sh)
+Script setDomainEnv.sh defines the options we pass to the JVM and set some environment variables. For this it calls the other script `setStartupEnv.sh`.
 
-startManagedWebLogic.sh -> startWebLogic.sh -> setDomainEnv.sh
+ To change properties we override them, instead of changing them in the scripts mentioned above. We set the overriding properties in the new file (must be created) `{DOMAIN_HOME}/bin/setStartupEnv.sh`. Eg:
+```text
+domains/domain1/bin$ cat setUserOverrides.sh 
+JAVA_OPTIONS="${JAVA_OPTIONS} -DserverType=wlx"
+USER_MEM_ARGS="-Xms1024m -Xmx2048m"
+```
+Having defined this file as shown (don't include #!/bin/bash), any managed server started after will start, for example, with 1024m of memory and a maximum of 2048m.
 
-Script setDomainEnv.sh allows defined the options we pass to the JVM and environment variables.
+See https://docs.oracle.com/cd/E24329_01/web.1211/e21048/overview.htm#START235 for the options that can be set for the JVM where a wl server is started.
