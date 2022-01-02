@@ -101,6 +101,7 @@ A domain is a set of wl resources managed as one thing, a common control. This r
 ```text
 ~/Oracle/Middleware/Oracle_Home/oracle_common/common/bin/config.sh
 ```
+Notice that this important script for Weblogic is not in the wlserver/ directory. A domain is a logical concept. Thus, its "location" is nothing but the location of its config files and libraries. It is recommended to create our domains separated from the rest of Weblogic components, ie. out of the Oracle home dir. The default location for a newly created domain will be `/home/<user>/Oracle/Middleware/Oracle_Home/user_projects/domains/base_domain`, but we can create it wherever we want.
 
 The script `config_builder.sh` is the other important script, used to create domain templates.
 
@@ -108,18 +109,33 @@ The script `config.sh` is used to create wl domains. By default, it opens a grap
 
 To update an existing domain is also known as to extend and existing domain. It is also done through script `config.sh`. This is used to add new technologies to an existing domain, or to add new Java EE libraries needed by applications running in the managed servers of the domain ? Notice that when we add a new feature to a domain, we cannot "remove" it after, using the same script `config.sh`. Examples of new features, or Java EE libraries, to be added when we update a domain may be "Weblogic Advanced Web Services for JAX-WS Extension" of "Weblogic JAX-WS SOAP/JMS Extension". Notice that all these libraries can be added when we create the domain initially. 
 
-A domain is a logical concept. Thus, its "location" is nothing but the location of its config files and libraries. It is recommended to create our domains separated from the rest of Weblogic components, ie. out of the Oracle home dir.
+The Admin server runs the admin (web) console, from where we manage all the components of the domain. The admin console is deployed in the Admin Server; it is the only application the administration server should have. By default, it listens on port 7001.  We can't run the admin console in other server of the domain, other than the admin server.
 
-The Admin server runs the admin (web) console, from where we manage all the components of the domain. The admin console is deployed in the Admin Server; it is the only application the administration server should have. By default, it listens on port 7001.  
-
-When we create a domain, we can set for it either of the modes:
+When we create a _domain_, we can set for it either of the modes:
 - Development: Allows autodeploy by simply throwing our artifacts into such directory. Loads wl admin credentials from `boot.properties` file. Thought To ease development. 
 - Production: None of the features in Development.
+
+The mode of the domain can later be changed, though, from the console.
 
 When we create a domain, me must also select JDK. It seems, therefore, that all the wl servers created for the domain afterwards, will use the same JDK. Also when we create a domain, we can create its Admins server, the node manager, some managed servers, clusters etc.
 
 The node manager is used to administer remote wl (managed) server.
 
-We shouldn't edit the domain config files manually (`<domain_name>/config/`). They must be edited only through the graphical or cli consoles. 
+We shouldn't edit the domain config files manually (`<domain_name>/config/`). They must be edited only through the graphical or cli consoles. The domain config file is `<domain_name>/config/config.xml`. It doesn't contain every and each configuration of the domain though. It only contains those that have been changed respect to their default values.
 
 ### I took "rigorous notes" only until end of video 15 of the course.
+
+We start the Admin server with script, or its domain, with `.../Oracle_Home/user_projects/domains/domain1/startWebLogic.sh`. After we have to start the managed servers. The admin web console runs on the admin server, so we need to start the latter first. Notice that to start a domain with this script, we need to run that one present in the directory of the specific domain.
+
+After we have started a domain we can do 
+```text
+$ ps -ef|grep bin/java
+camilo   1170208 1170170 17 17:49 pts/3    00:00:32 /usr/lib/jvm/jdk1.8.0_191/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=AdminServer -Djava.security.policy=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server weblogic.Server
+camilo   1170510 1148119  0 17:52 pts/2    00:00:00 grep --color=auto bin/java
+```
+This shows that the wl server will be nothing but a Java process running on a JVM with some properties. This command shows that we are running a Java class called `weblogic.Server`, and, as the property `-Dweblogic.Name=AdminServer` shows (passed to the JVM) we are starting a wl server named "AdminServer". I.e., when we start a domain, we actually start its admin server, with its deployed application, the admin console. With this command we can see whether we have started the admin server.
+
+
+In the console, under "View changes and restarts/Restart checklist" we can see the servers it is necessary to restart when we make some changes in the console. Modifications to the administration console in Production mode can only be done first blocking it (Lock & Edit), then modifying it, and then saving the changes. This is to avoid conflicting modification between different administrators of a same domain (accessing the same console). When we block a console, we are telling to other admins we are making some changes to the console. In Development, we can modify and save without blocking. Some property changes may require the restart of a server.
+
+We can switch between Production and Development modes under Home > domain_name. There will be the checkbox "Production Mode", under the tabs Configuration/Genera.
