@@ -138,4 +138,43 @@ This shows that the wl server will be nothing but a Java process running on a JV
 
 In the console, under "View changes and restarts/Restart checklist" we can see the servers it is necessary to restart when we make some changes in the console. Modifications to the administration console in Production mode can only be done first blocking it (Lock & Edit), then modifying it, and then saving the changes. This is to avoid conflicting modification between different administrators of a same domain (accessing the same console). When we block a console, we are telling to other admins we are making some changes to the console. In Development, we can modify and save without blocking. Some property changes may require the restart of a server.
 
-We can switch between Production and Development modes under Home > domain_name. There will be the checkbox "Production Mode", under the tabs Configuration/Genera.
+We can switch between Production and Development modes under Home > domain_name. There will be the checkbox "Production Mode", under the tabs Configuration/General. Changes in the mode of the domain will always require a restart of the domain, after doing "Activate Changes" under Change Center. One way to restart the domain is by shutting down the admin server from the console, and then starting it again with script `startWebLogic.sh`.
+
+The AdminServer and any managed server, may not have a machine associated with them. In such case we'll not be able to start them from the console.
+
+To _start_ wl servers we have the options:
+1. From a bash shell with the scripts `.../domains/domain_name/startWebLogic.sh` (for the admin server) and `.../domains/domain_name/bin/startManagedWebLogic.sh server_name` (for a managed server). 
+2. From the console under Home > Summary of Servers/ Control tab, but only if the node manager process is running in the machine where the server is running.?
+
+To _stop_ a wl server we have the options:
+1. From a bash shell with `kill -9 pid` (hard) or `kill -2 pid` (equal to ^C, soft shutdown). The pid of a server can be obtained with `ps -ef|grep java`, as it is nothing more than a Java process.
+2. From a bash shell with the scripts `.../domains/domain_name/stopWebLogic.sh` (for the admin server) and `.../domains/domain_name/bin/stopManagedWebLogic.sh server_name` (for a managed server). Full syntax to be used if we have not put our credentials in file `domains/domain1/servers/server_name/security/boot.properties` is `./stopManagedWebLogic.sh Server1 t3://ITMILKLR0025L:7003 weblogic weblogic1`
+3. From the console under Home > Summary of Servers/ Control.
+
+To start the AdminServer we will not need any credential as these will be find in `security/boot.properties`. This file was set when we created the domain, since we asked for a domain initially in Development mode. To start a managed server we'll be prompted for some administration credentials, as the corresponding `.../security/boot.properties` file will not be created automatically. We can create it, together with the security/ dir,  if we want to start a managed server as well without being prompted for credential. The credential will be read and encrypted, if they are not.
+
+In order to stop the AdminServer using the stop script, admin credentials must be set it the file `domains/domain1/servers/AdminServer/security/boot.properties` as:
+```text
+password=jlkjljj
+username=pepito
+```
+To stop a managed server with `stopManagedWebLogic.sh` the credentials can be passed to the script or be defined in the corresponding `boot.properties` file.
+
+These will be encrypted after read for the first time by any wl script.
+
+To see the wl server, or Java process pid, of either admin or managed servers, we can use `jps -l` 
+```text
+~/Oracle/Middleware/Oracle_Home/user_projects/domains/domain1/bin$ jps -l
+1255608 weblogic.Server
+1248063 weblogic.Server
+```
+Command `ps -ef|grep java` will show the same processes with all the information about the JVM they started, so we can see which server (AdminServer or Server1) each process started, with property `Dweblogic.Name`:
+```text
+~/Oracle/Middleware/Oracle_Home/user_projects/domains/domain1/bin$ ps -ef |grep -E '1255608|1248063'
+camilo   1248063 1248025  1 13:01 pts/3    00:02:00 /usr/lib/jvm/jdk1.8.0_191/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=AdminServer -Djava.security.policy=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server weblogic.Server
+camilo   1255608 1255572  6 15:42 pts/2    00:00:52 /usr/lib/jvm/jdk1.8.0_191/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=Server1 -Djava.security.policy=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.management.server=http://ITMILKLR0025L:7001 weblogic.Server
+```
+
+
+The node manager is used to perform operations on remote servers, such as to start them. With regard the to start-up operation, Weblogic considers all servers as remote servers. Therefore, to start them from the console, they need to have the node manager process running on them. The admin server will send a signal to the node manager and the later will start the wl server on that machine.
+
