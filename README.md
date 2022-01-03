@@ -195,3 +195,18 @@ USER_MEM_ARGS="-Xms1024m -Xmx2048m"
 Having defined this file as shown (don't include #!/bin/bash), any managed server started after will start, for example, with 1024m of memory and a maximum of 2048m.
 
 See https://docs.oracle.com/cd/E24329_01/web.1211/e21048/overview.htm#START235 for the options that can be set for the JVM where a wl server is started.
+
+## Application deployment
+We can deploy applications through three tools: the console, WLST and the "deployer". Applications will be deployed in one or more servers. Application types can be:
+- .war: web applications (web/presentation layer)
+- .jar: EJBs (business layer)
+- .ear: enterprise applications (presentation and business layers in an archive)
+- .war/.jar: web service
+- .jar: libraries
+- .rar: file resources
+- .xml: JDBC and JMS modules (simple config files)
+- .jar, .ear, .zip, .gar, .sar: products from Oracle Middleware (eg. SOA, ADF, Webcenter etc)
+- etc: products from third parties
+
+
+
