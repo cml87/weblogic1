@@ -16,8 +16,9 @@ Weblogic is the engine supporting all, or most, the _Fusion Middleware_ products
 - Oracle Business Intelligence (BI)
 - Oracle BPM
 - Oracle Identity 
-
 etc.
+
+The full name is "Oracle WebLogic Server", it is one of the products in Oracle Fusion Middleware suite.
 
 Java EE servers receive request from Java or the web, for example. Any Java EE server will have two big layers. One is the _web layer_ (presentation layer) which will include HTML, CSS, JSP, Servlets etc. This layer runs the web part of the applications. The second layer is the _business layer_, which includes  EJB etc. The objects in the business layer contain the business logic and are invoked by the presentation layer. **Tomcat** is not a Java EE compliant server, as it can natively run only a web layer.
 
@@ -70,16 +71,16 @@ In order to install Oracle Fusion Middleware you have to download the installer 
 ```text
 ~/Oracle/Middleware/Oracle_Home$ ll
 total 40
-drwxr-x---  9 camilo camilo 4096 dic 30 13:32 ./
-drwxr-x---  3 camilo camilo 4096 dic 30 13:30 ../
-drwxr-x---  6 camilo camilo 4096 dic 30 13:30 coherence/
-drwxr-x---  8 camilo camilo 4096 dic 30 13:31 em/
-drwxr-x--- 16 camilo camilo 4096 dic 30 13:32 inventory/
-drwxr-x--- 11 camilo camilo 4096 dic 30 13:31 OPatch/
-drwxr-x--- 18 camilo camilo 4096 dic 30 13:31 oracle_common/
--rw-r-----  1 camilo camilo  129 dic 30 13:32 oraInst.loc
-drwxr-x---  8 camilo camilo 4096 dic 30 13:32 oui/
-drwxr-x---  8 camilo camilo 4096 dic 30 13:31 wlserver/
+drwxr-x---  9 <user_name> <user_name> 4096 dic 30 13:32 ./
+drwxr-x---  3 <user_name> <user_name> 4096 dic 30 13:30 ../
+drwxr-x---  6 <user_name> <user_name> 4096 dic 30 13:30 coherence/
+drwxr-x---  8 <user_name> <user_name> 4096 dic 30 13:31 em/
+drwxr-x--- 16 <user_name> <user_name> 4096 dic 30 13:32 inventory/
+drwxr-x--- 11 <user_name> <user_name> 4096 dic 30 13:31 OPatch/
+drwxr-x--- 18 <user_name> <user_name> 4096 dic 30 13:31 oracle_common/
+-rw-r-----  1 <user_name> <user_name>  129 dic 30 13:32 oraInst.loc
+drwxr-x---  8 <user_name> <user_name> 4096 dic 30 13:32 oui/
+drwxr-x---  8 <user_name> <user_name> 4096 dic 30 13:31 wlserver/
 ```
 Inside this directory we might later install other products from the Oracle Middleware suite. Directories here are:
 - coherence/: files of this product from Oracle. Coherence is a grid memory (cluster) used by Oracle for session data storage etc.
@@ -101,6 +102,8 @@ A domain is a set of wl resources managed as one thing, a common control. This r
 ```text
 ~/Oracle/Middleware/Oracle_Home/oracle_common/common/bin/config.sh
 ```
+When creating a domain pay attention to not set the listening port of the AdminServer to a port already in use, for example, by another console. I made this mistake and had to delete and make the domain afresh.
+
 Notice that this important script for Weblogic is not in the wlserver/ directory. A domain is a logical concept. Thus, its "location" is nothing but the location of its config files and libraries. It is recommended to create our domains separated from the rest of Weblogic components, ie. out of the Oracle home dir. The default location for a newly created domain will be `/home/<user>/Oracle/Middleware/Oracle_Home/user_projects/domains/base_domain`, but we can create it wherever we want.
 
 The script `config_builder.sh` is the other important script, used to create domain templates.
@@ -114,6 +117,9 @@ The Admin server runs the admin (web) console, from where we manage all the comp
 When we create a _domain_, we can set for it either of the modes:
 - Development: Allows autodeploy by simply throwing our artifacts into such directory. Loads wl admin credentials from `boot.properties` file. Thought To ease development. 
 - Production: None of the features in Development.
+
+Domains start by default in development mode. See `/home/<user_name>/Oracle/Middleware/Oracle_Home/user_projects/domains/domain2/autodeploy/readme.txt` for how to change the start mode of a domain.
+
 
 A change in domain mode from Development to Production will require restarting all the servers in the domain. We do this either by clicking "Restart" for each server in the console (works only if the servers have the node manager process running), or shutting down them in the console and starting them again with the start scripts we'll see below.  
 
@@ -132,8 +138,8 @@ We start the Admin server with script, or its domain, with `.../Oracle_Home/user
 After we have started a domain we can do 
 ```text
 $ ps -ef|grep bin/java
-camilo   1170208 1170170 17 17:49 pts/3    00:00:32 /usr/lib/jvm/jdk1.8.0_191/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=AdminServer -Djava.security.policy=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server weblogic.Server
-camilo   1170510 1148119  0 17:52 pts/2    00:00:00 grep --color=auto bin/java
+<user_name>   1170208 1170170 17 17:49 pts/3    00:00:32 /usr/lib/jvm/jdk1.8.0_191/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=AdminServer -Djava.security.policy=/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.home=/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server weblogic.Server
+<user_name>   1170510 1148119  0 17:52 pts/2    00:00:00 grep --color=auto bin/java
 ```
 This shows that the wl server will be nothing but a Java process running on a JVM with some properties. This command shows that we are running a Java class called `weblogic.Server`, and, as the property `-Dweblogic.Name=AdminServer` shows (passed to the JVM) we are starting a wl server named "AdminServer". I.e., when we start a domain, we actually start its admin server, with its deployed application, the admin console. With this command we can see whether we have started the admin server.
 
@@ -173,8 +179,8 @@ To see the wl server, or Java process pid, of either admin or managed servers, w
 Command `ps -ef|grep java` will show the same processes with all the information about the JVM they started, so we can see which server (AdminServer or Server1) each process started, with property `Dweblogic.Name`:
 ```text
 ~/Oracle/Middleware/Oracle_Home/user_projects/domains/domain1/bin$ ps -ef |grep -E '1255608|1248063'
-camilo   1248063 1248025  1 13:01 pts/3    00:02:00 /usr/lib/jvm/jdk1.8.0_191/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=AdminServer -Djava.security.policy=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server weblogic.Server
-camilo   1255608 1255572  6 15:42 pts/2    00:00:52 /usr/lib/jvm/jdk1.8.0_191/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=Server1 -Djava.security.policy=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.home=/home/camilo/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.management.server=http://ITMILKLR0025L:7001 weblogic.Server
+<user_name>   1248063 1248025  1 13:01 pts/3    00:02:00 /usr/lib/jvm/jdk1.8.0_191/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=AdminServer -Djava.security.policy=/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.home=/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server weblogic.Server
+<user_name>   1255608 1255572  6 15:42 pts/2    00:00:52 /usr/lib/jvm/jdk1.8.0_191/bin/java -server -Xms256m -Xmx512m -XX:CompileThreshold=8000 -cp /home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic-launcher.jar -Dlaunch.use.env.classpath=true -Dweblogic.Name=Server1 -Djava.security.policy=/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server/lib/weblogic.policy -Djava.system.class.loader=com.oracle.classloader.weblogic.LaunchClassLoader -javaagent:/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server/lib/debugpatch-agent.jar -da -Dwls.home=/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.home=/home/<user_name>/Oracle/Middleware/Oracle_Home/wlserver/server -Dweblogic.management.server=http://ITMILKLR0025L:7001 weblogic.Server
 ```
 
 When we start a managed server in a domain, it will try to connect to the admin server of the domain, to fetch the most current configuration the admin server has set for it. However, we can start a managed server with the admin server of the domain off. The managed server will be started in "Managed Server independence mode".
@@ -208,5 +214,29 @@ We can deploy applications through three tools: the console, WLST and the "deplo
 - .jar, .ear, .zip, .gar, .sar: products from Oracle Middleware (eg. SOA, ADF, Webcenter etc)
 - etc: products from third parties
 
+The deployment wizard allows deploying an application to more than one server. However, this is not the same as deploying the application to a cluster. It will be the same application deployed in two different servers.
 
+In production mode, after we deploy an application, we need to start it, also from the console. This allows for some additional configuration setup in the console, before we start the application.
 
+Many things can be configured after the deployment of an application, for example, its logs. We can start and stop the application under tab "Control".
+
+Once an application is deployed in one managed server of a domain, we can easily deploy it to another one, under the target tab. This will not be a cluster, though, it will be a simple duplication.
+
+Web applications will always use something called deployment descriptor file, named "web.xml". It will be needed by the application server where the app is deployed. In addition, each application server will have its own deployment descriptor. For WebLogic server it is called "weblogic.xml".
+
+Before deleting an application in the console, it must be stopped first. 
+
+With WebLogic we can deploy exploded artifacts. This allows developers to make quick changes in the source code of an application and (re)deploy it directly, without packing it in a war or an ear.
+
+### WebLogic deployer
+WebLogic servers has a class `weblogic.Deployer` that can be called as a script with `java` to deploy applications in wl servers. This class is in some of the jars wl copies into the directory `wlserver`, though I don't know which one exactly. These jars are not in the classpath by default (environment variable CLASSPATH). Therefore, if we run `java weblogic.Deployer ...` the class will not be found and we'll get an error. To add these jars to the classpath environment variable of the current shell (and to set all sort of environment variables wl server needs), weblogic supplies us with the script (in the bin directory of our domain) `/home/<user_name>/Oracle/Middleware/Oracle_Home/user_projects/domains/domain1/bin/setDomainEnv.sh`; we should run this script as:
+```text
+$ . ./setDomainEnv.sh
+```
+Notice the point plus a space before the script call.  ?
+This script is actually called by other scripts in the domain, because all of them make use of environment variables that need to be property configured.
+
+The class `weblogic.Deployer` can do many things, not only to deploy applications, for example, to see a list of deployed applications in the domain. We can easily call this class inside a bash script. However, `wlst` is more powerful.
+
+### Autodeploy
+Only in development mode, it's possible to drop the artifacts in a directory from where wl will deploy it automatically. Its `domain_name/autodeploy`. Moreover, the application in this case will be deployed in the AdminServer automatically, even if we have some managed servers in the domain (we are in Development mode, so it is accepted to deploy applications in the admin server). The same holds for undeploy an app, just remove the artifact from the autodoploy/ dir.
