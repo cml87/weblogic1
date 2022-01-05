@@ -240,3 +240,6 @@ The class `weblogic.Deployer` can do many things, not only to deploy application
 
 ### Autodeploy
 Only in development mode, it's possible to drop the artifacts in a directory from where wl will deploy it automatically. Its `domain_name/autodeploy`. Moreover, the application in this case will be deployed in the AdminServer automatically, even if we have some managed servers in the domain (we are in Development mode, so it is accepted to deploy applications in the admin server). The same holds for undeploy an app, just remove the artifact from the autodoploy/ dir.
+
+### Monitoring
+The wl console comes with some monitoring tools for the deployed applications. We can see, for example, the number of times a given jsp have been visited, as well as the different http that have accessed the app. Beside the monitoring tools offered by wl (Monitoring tab), there are the "dashboards" and the "cuadro de mandos".
