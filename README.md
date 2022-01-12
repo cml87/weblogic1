@@ -243,3 +243,90 @@ Only in development mode, it's possible to drop the artifacts in a directory fro
 
 ### Monitoring
 The wl console comes with some monitoring tools for the deployed applications. We can see, for example, the number of times a given jsp have been visited, as well as the different http that have accessed the app. Beside the monitoring tools offered by wl (Monitoring tab), there are the "dashboards" and the "cuadro de mandos".
+
+## WLST
+Weblogic Scripting Tool is a tool that allows performing the same operations we do in the graphical console, but in CLI. We can launch scripts with it. It works with the Jython programming language, a Python 2 flavor that runs on the JVM, although it seems it supports Python 3 syntax too. Scripts will end in .py and will perform the same logical operations we perform manually in graphical console, such as deploy an application, start/stop it, etc. The console launches with script `/Oracle_Home/oracle_common/common/bin/wlst.sh`. Once launched we'll need to select the domain over which we want to work to go into `online` mode.
+
+In general, the wlst console works exactly the same as an interactive Python console. We can use Python commands to perform operations of wl servers, for example. Type in `help()` or `help(command_name)`. For example, `help('connect')`, `help('set')` or `help('all')`, to get help about these commands.
+
+There are the `offline` and the `online` modes. The `offline` mode allows performing operations not related to any domain, for example, <u>creating a domain</u>, or a domain template. Before we saw how to create a domain with the script `config.sh`, which opened a GUI. The `online` mode, in turn, is necessary to perform operations that need a domain, such as creating a server, starting/stopping it, creating JDBC resources etc. 
+
+There are also the "interactive" and the "scripting" modes. The scripting mode is to pass a Python script to wlst to be executed. There is also the "embedded" mode that allows including wlst commands inside a Java program, but we'll not cover it!
+
+In interactive mode we connect with command `connect()`. We'll be prompted for domain name and password, and then for the domain url. t3 is like http, and t3s is like https, these are protocols invented by Oracle to connect remotely to a domain:
+```text
+~/Oracle/Middleware/Oracle_Home/oracle_common/common/bin$ ./wlst.sh
+
+Initializing WebLogic Scripting Tool (WLST) ...
+
+Welcome to WebLogic Server Administration Scripting Shell
+
+Type help() for help on available commands
+
+wls:/offline> connect('weblogic','weblogic1','t3://localhost:7001')     ## connect to this domain, or admin server
+Connecting to t3://localhost:7001 with userid weblogic ...
+Successfully connected to Admin Server "AdminServer" that belongs to domain "domain1".
+
+Warning: An insecure protocol was used to connect to the server.
+To ensure on-the-wire security, the SSL port or Admin port should be used instead.
+
+wls:/domain1/serverConfig/>    ## we are in the admin server !
+```
+Above we have connected to a domain, or to its admin server. With the same syntax, we can connect to a managed server of a domain:
+```text
+~/Oracle/Middleware/Oracle_Home/oracle_common/common/bin$ ./wlst.sh 
+
+Initializing WebLogic Scripting Tool (WLST) ...
+
+Welcome to WebLogic Server Administration Scripting Shell
+
+Type help() for help on available commands
+
+wls:/offline> connect('weblogic','weblogic1','t3://localhost:7010')
+Connecting to t3://localhost:7010 with userid weblogic ...
+Successfully connected to managed Server "Server1" that belongs to domain "domain1".
+
+Warning: An insecure protocol was used to connect to the server. 
+To ensure on-the-wire security, the SSL port or Admin port should be used instead.
+
+wls:/domain1/serverConfig/> 
+```
+The difference is that when connected to a server we'll able to modify, or manage properties of that server only.
+
+Command `cmo` will show us in which server we are.
+
+### JMX and MBeans
+JMX is a Java EE specification that WebLogic implements. It allows managing the so called managed beans. WebLogic offers resources in the form of MBeans, MBeans are interfaces to resources. We manage MBeans through the console, wlst or other tools.
+
+When we connect to a domain with wlst, we go into the MBeans tree, in one of three possible modes:
+- config: in the prompt we see `serverConfig`. The tree shows the config of the connected to server, or the domain (if we connected to the admin server), with which it was started (what appears in the config files). Change to it with command `serverConfig()`.
+- runtime: in the prompt we see `serverRuntime`. The tree shows the real time status of the server, such as applications health, used memory etc. It is read only mode. Change to it with command `serverRuntime()`
+- fjaldsfjdasj
+
+Each place in the tree is like a "place" in the graphical console, for example when go to see the servers. We navigate through this tree issuing "pythonized" linux commands
+```text
+wls:/domain1/serverConfig/>   ## we get here right here after we connect to the domain
+wls:/domain1/serverConfig/>ls()
+dr--   AdminConsole
+dr--   AppDeployments
+dr--   BatchConfig
+...
+dr--   XMLRegistries
+
+-r--   AdminServerName                              AdminServer
+-r--   AdministrationMBeanAuditingEnabled           false
+...
+-r--   Tags                                         null
+-r--   Type                                         Domain
+
+-r-x   arePartitionsPresent                         Boolean : 
+-r-x   findConfigBeansWithTags                      WebLogicMBean[] : String(type),Boolean(matchAll),String[](tags)
+-r-x   findConfigBeansWithTags                      WebLogicMBean[] : String(type),String[](tags)
+...
+-r-x   listTags                                     String[] : String(type)
+-r-x   unSet                                        Void : String(propertyName)
+wls:/domain1/serverConfig/>cd('Servers') 
+```
+Connecting to a server in the domain and changing it runtime mode, we see info about the deployed applications in the server at `wls:/domain1/serverRuntime/ApplicationRuntimes>`. From there we can switch to any application "dir" and do ls() to see its status in real time (we are in runtime mode).
+
+Type ls(), we'll see list of things: `d` is for directories, `r` for properties, `x` is for methods.
